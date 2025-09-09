@@ -1,5 +1,11 @@
 {
   "compatibility_date": "2025-05-25",
   "name": "cade",
-  "main": "worker.ts"
+  "main": "worker.ts",
+  "routes": [
+    {
+      "pattern": "cade.me",
+      "custom_domain": true
+    }
+  ]
 }
