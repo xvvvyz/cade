@@ -125,7 +125,7 @@ const html = `<!doctype html>
     <a href="https://github.com/xvvvyz">GitHub</a>
     <a href="https://linkedin.com/in/xvvvyz/">LinkedIn</a>
     <a href="https://cal.com/xvvvyz">Book a call</a>
-    <a href="https://github.com/xvvvyz.gpg">PGP</a>
+    <a href="https://github.com/xvvvyz.gpg">PGP key</a>
   </nav>
 </div>`;
 
