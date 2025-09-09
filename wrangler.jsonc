@@ -2,6 +2,8 @@
   "compatibility_date": "2025-05-25",
   "name": "cade",
   "main": "worker.ts",
+  "preview_urls": false,
+  "workers_dev": false,
   "assets": {
     "binding": "ASSETS",
     "directory": "public"
