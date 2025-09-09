@@ -2,6 +2,10 @@
   "compatibility_date": "2025-05-25",
   "name": "cade",
   "main": "worker.ts",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "public"
+  },
   "routes": [
     {
       "pattern": "cade.me",
