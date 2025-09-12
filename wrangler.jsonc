@@ -6,12 +6,12 @@
   "workers_dev": false,
   "assets": {
     "binding": "ASSETS",
-    "directory": "public"
+    "directory": "public",
   },
   "routes": [
     {
       "pattern": "cade.me",
-      "custom_domain": true
-    }
-  ]
+      "custom_domain": true,
+    },
+  ],
 }
