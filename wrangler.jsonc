@@ -1,7 +1,7 @@
 {
   "compatibility_date": "2025-05-25",
   "name": "cade",
-  "main": "worker.ts",
+  "main": "index.ts",
   "preview_urls": false,
   "workers_dev": false,
   "assets": {
