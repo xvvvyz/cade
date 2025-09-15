@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "deploy": "wrangler deploy",
     "dev": "wrangler dev --ip 0.0.0.0 --live-reload",
     "format": "prettier --write ."
   },
