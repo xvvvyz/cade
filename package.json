@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev --ip 0.0.0.0 --live-reload",
+    "dev": "wrangler dev --ip 0.0.0.0 --port 3000 --live-reload",
     "format": "prettier --write ."
   },
   "dependencies": {

@@ -5,10 +5,10 @@
     "": {
       "name": "xvyz",
       "dependencies": {
-        "prettier": "latest",
-        "prettier-plugin-organize-imports": "latest",
-        "prettier-plugin-tailwindcss": "latest",
-        "wrangler": "latest",
+        "prettier": "^3.6.2",
+        "prettier-plugin-organize-imports": "^4.3.0",
+        "prettier-plugin-tailwindcss": "^0.7.1",
+        "wrangler": "^4.50.0",
       },
     },
   },
