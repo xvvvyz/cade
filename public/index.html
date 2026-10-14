@@ -10,10 +10,27 @@
     --color-background: #111;
     --color-text-subtle: #999;
     --color-text: #ddd;
+    --color-grid: color-mix(in srgb, var(--color-text) 7%, transparent);
+    --color-line: color-mix(
+      in srgb,
+      var(--color-text) 20%,
+      var(--color-background)
+    );
+    --color-line-hover: color-mix(
+      in srgb,
+      var(--color-text) 45%,
+      var(--color-background)
+    );
+    --color-fill-hover: color-mix(
+      in srgb,
+      var(--color-text) 4%,
+      var(--color-background)
+    );
     --font-family: -apple-system, Helvetica, sans-serif;
     --font-size: 18px;
+    --grid: 1.5rem;
     --space-1: 0.5rem;
-    --space-3: 2rem;
+    --space-2: 1rem;
   }
 
   @media (prefers-color-scheme: light) {
@@ -29,9 +46,12 @@
     background-color: var(--color-background);
     font-family: var(--font-family);
     font-size: var(--font-size);
-    line-height: 1.5rem;
+    line-height: var(--grid);
+    overflow: auto;
   }
 
+  /* Clips the grid layer to the page. The overflow on html above keeps this
+     from passing up to the viewport, which would stop the page scrolling. */
   body {
     align-items: center;
     box-sizing: border-box;
@@ -39,90 +59,213 @@
     justify-content: center;
     margin: 0;
     min-height: 100dvh;
-    padding: var(--space-3) var(--space-1);
-    width: 100vw;
+    overflow: clip;
+    padding: var(--grid) var(--space-2);
+  }
+
+  /* A grid cell is one line of text tall. Every height and gap below is a
+     whole number of cells, and the width an even number so both columns land
+     on grid lines. Cards sit edge to edge and share the grid line between
+     them. */
+  main {
+    display: flex;
+    flex-direction: column;
+    gap: var(--grid);
+    max-width: calc(16 * var(--grid));
+    position: relative;
+    /* The first width is for browsers without round(). */
+    width: 100%;
+    width: min(
+      calc(16 * var(--grid)),
+      round(down, 100%, calc(2 * var(--grid)))
+    );
+  }
+
+  /* Anchored to main so a grid line always passes through its corner. */
+  main::before {
+    background-image:
+      linear-gradient(to right, var(--color-grid) 1px, transparent 1px),
+      linear-gradient(var(--color-grid) 1px, transparent 1px);
+    background-size: var(--grid) var(--grid);
+    content: "";
+    inset: calc(-24 * var(--grid));
+    mask-image: radial-gradient(36rem circle, #000 20%, transparent);
+    pointer-events: none;
+    position: absolute;
+    z-index: -1;
+  }
+
+  /* An empty spacer one cell tall has its baseline at its bottom edge, so
+     baseline-aligning the text with it puts the text's first baseline on a
+     grid line whatever the font. Later lines follow one cell apart. The span
+     inside keeps the title one flex item. */
+  h1 {
+    align-items: baseline;
+    display: flex;
+    font-size: 1rem;
+    font-weight: 500;
+    height: calc(2 * var(--grid));
+    margin: 0;
+  }
+
+  h1::before {
+    content: "";
+    height: var(--grid);
   }
 
   nav {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    max-width: 14rem;
-    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
+  nav > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* The inset shadow draws the top and left edges and the offset shadow the
+     bottom and right, so each edge sits on the grid line itself. */
   a {
     align-items: center;
-    background: color-mix(in srgb, var(--color-text) 8%, transparent);
+    background: var(--color-background);
+    box-shadow:
+      inset 1px 1px var(--color-line),
+      1px 1px var(--color-line);
+    box-sizing: border-box;
     color: var(--color-text-subtle);
     display: flex;
-    justify-content: space-between;
-    padding: 0.65rem 1.5rem;
+    height: calc(2 * var(--grid));
+    padding-inline: var(--grid);
+    position: relative;
     text-decoration: none;
-    transition: background 0.15s;
+    transition:
+      background 0.15s,
+      box-shadow 0.15s;
   }
 
   a:hover {
-    background: color-mix(in srgb, var(--color-text) 16%, transparent);
+    --color-line: var(--color-line-hover);
+    background: var(--color-fill-hover);
+    z-index: 1;
+  }
+
+  .projects a {
+    height: calc(3 * var(--grid));
+  }
+
+  .projects strong {
+    color: var(--color-text);
+    display: block;
+    font-weight: 500;
   }
 
   svg {
+    fill: currentColor;
     flex-shrink: 0;
+    height: 22px;
+    margin-inline-start: auto;
+    padding-inline-start: var(--space-1);
+    transition: transform 0.15s;
+    width: 22px;
+  }
+
+  a:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  @media (max-width: 420px) {
+    .projects {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* The cards rise in one after another, the links after the projects. */
+  h1,
+  nav > * {
+    animation: rise 0.5s ease-out backwards;
+    animation-delay: calc((var(--offset, 0) + var(--i, 0)) * 70ms);
+  }
+
+  .links {
+    --offset: 3;
+  }
+
+  nav > :nth-child(1) {
+    --i: 1;
+  }
+
+  nav > :nth-child(2) {
+    --i: 2;
+  }
+
+  nav > :nth-child(3) {
+    --i: 3;
+  }
+
+  nav > :nth-child(4) {
+    --i: 4;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation: none !important;
+      transition: none !important;
+    }
   }
 </style>
 
-<nav>
-  <a
-    href="https://signal.me/#eu/k0wbY0eeLzzn1GLkJJ3SXYeL23J7XTuOs5zm0BEU-kOJgO1Sl3pDOLc5pKuFb86I"
-    >Signal
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      fill="currentColor"
-      viewBox="0 0 256 256"
+<svg style="display: none">
+  <symbol id="arrow" viewBox="0 0 256 256">
+    <path
+      d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
+    ></path>
+  </symbol>
+</svg>
+
+<main>
+  <h1>
+    <span>Hey, I&rsquo;m Cade. I design and<br />build digital products.</span>
+  </h1>
+
+  <nav class="projects">
+    <a href="https://llog.app">
+      <span>Founder <strong>llog.app</strong></span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+    <a href="https://geoparse.ai">
+      <span>Founder <strong>geoparse.ai</strong></span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+    <a href="https://stitchstudio.ai">
+      <span>Designer &amp; Engineer <strong>stitchstudio.ai</strong></span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+  </nav>
+
+  <nav class="links">
+    <a
+      href="https://signal.me/#eu/k0wbY0eeLzzn1GLkJJ3SXYeL23J7XTuOs5zm0BEU-kOJgO1Sl3pDOLc5pKuFb86I"
     >
-      <path
-        d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
-      ></path></svg
-  ></a>
-  <a href="https://github.com/xvvvyz.gpg"
-    >PGP key
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      fill="currentColor"
-      viewBox="0 0 256 256"
-    >
-      <path
-        d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
-      ></path></svg
-  ></a>
-  <a href="https://github.com/xvvvyz"
-    >GitHub
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      fill="currentColor"
-      viewBox="0 0 256 256"
-    >
-      <path
-        d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
-      ></path></svg
-  ></a>
-  <a href="https://linkedin.com/in/xvvvyz/"
-    >LinkedIn
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="22"
-      height="22"
-      fill="currentColor"
-      viewBox="0 0 256 256"
-    >
-      <path
-        d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
-      ></path></svg
-  ></a>
-</nav>
+      <span>Signal</span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+    <a href="https://github.com/xvvvyz.gpg">
+      <span>PGP key</span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+    <a href="https://github.com/xvvvyz">
+      <span>GitHub</span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+    <a href="https://linkedin.com/in/xvvvyz/">
+      <span>LinkedIn</span>
+      <svg><use href="#arrow" /></svg>
+    </a>
+  </nav>
+</main>
