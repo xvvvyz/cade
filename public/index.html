@@ -11,9 +11,11 @@
     --color-text-subtle: #999;
     --color-text: #ddd;
     --color-grid: color-mix(in srgb, var(--color-text) 7%, transparent);
+    /* The grid color made opaque, so a card edge drawn over a grid line looks
+       the same as one drawn over the card instead of doubling up. */
     --color-line: color-mix(
       in srgb,
-      var(--color-text) 20%,
+      var(--color-text) 7%,
       var(--color-background)
     );
     --color-line-hover: color-mix(
@@ -21,6 +23,7 @@
       var(--color-text) 45%,
       var(--color-background)
     );
+    --color-fill: transparent;
     --color-fill-hover: color-mix(
       in srgb,
       var(--color-text) 4%,
@@ -66,11 +69,11 @@
   /* A grid cell is one line of text tall. Every height and gap below is a
      whole number of cells, and the width an even number so both columns land
      on grid lines. Cards sit edge to edge and share the grid line between
-     them. */
+     them. The icon links share the title's row, on its last line. */
   main {
-    display: flex;
-    flex-direction: column;
-    gap: var(--grid);
+    display: grid;
+    gap: var(--grid) 0;
+    grid-template-columns: 1fr auto;
     max-width: calc(16 * var(--grid));
     position: relative;
     /* The first width is for browsers without round(). */
@@ -95,68 +98,67 @@
     z-index: -1;
   }
 
-  /* An empty spacer one cell tall has its baseline at its bottom edge, so
-     baseline-aligning the text with it puts the text's first baseline on a
-     grid line whatever the font. Later lines follow one cell apart. The span
-     inside keeps the title one flex item. */
+  /* Each line box is one cell tall, so each line sits centered in its row. */
   h1 {
-    align-items: baseline;
-    display: flex;
     font-size: 1rem;
     font-weight: 500;
     height: calc(2 * var(--grid));
     margin: 0;
   }
 
-  h1::before {
-    content: "";
-    height: var(--grid);
-  }
-
-  nav {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  nav > :last-child:nth-child(odd) {
-    grid-column: 1 / -1;
-  }
-
   /* The inset shadow draws the top and left edges and the offset shadow the
-     bottom and right, so each edge sits on the grid line itself. */
+     bottom and right, so each edge sits on the grid line itself. Each nav sets
+     its resting colors for its links to inherit, so hover always wins. */
   a {
     align-items: center;
-    background: var(--color-background);
+    background: var(--color-fill);
     box-shadow:
       inset 1px 1px var(--color-line),
       1px 1px var(--color-line);
     box-sizing: border-box;
     color: var(--color-text-subtle);
     display: flex;
-    height: calc(2 * var(--grid));
-    padding-inline: var(--grid);
     position: relative;
     text-decoration: none;
     transition:
       background 0.15s,
-      box-shadow 0.15s;
+      box-shadow 0.15s,
+      color 0.15s;
   }
 
   a:hover {
+    --color-fill: var(--color-fill-hover);
     --color-line: var(--color-line-hover);
-    background: var(--color-fill-hover);
     z-index: 1;
-  }
-
-  .projects strong {
-    color: var(--color-text);
-    display: block;
-    font-weight: 500;
   }
 
   svg {
     fill: currentColor;
     flex-shrink: 0;
+  }
+
+  .projects {
+    --color-fill: var(--color-background);
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .projects > :last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  .projects a {
+    height: calc(2 * var(--grid));
+    padding-inline: var(--grid);
+  }
+
+  .projects span {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  .projects svg {
     height: 22px;
     margin-inline-start: auto;
     padding-inline-start: var(--space-1);
@@ -164,13 +166,57 @@
     width: 22px;
   }
 
-  a:hover svg {
+  .projects a:hover svg {
     transform: translate(2px, -2px);
   }
 
+  /* Each icon fills one grid cell and the cell only gets its edges on hover. */
+  .links {
+    --color-line: transparent;
+    align-self: end;
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .links a {
+    height: var(--grid);
+    justify-content: center;
+    width: var(--grid);
+  }
+
+  .links a:hover {
+    color: var(--color-text);
+  }
+
+  /* The edges sit on the cell's top and left pixels but just past its bottom
+     and right, so the nudge centers the icon between them. */
+  .links svg {
+    height: 15px;
+    margin: 1px 0 0 1px;
+    width: 15px;
+  }
+
+  /* Too narrow to share a row, so the title centers, the projects stack and
+     the icons go under them. Four cells is an even width, so centered they
+     stay on grid lines. */
   @media (max-width: 420px) {
+    main {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
     .projects {
       grid-template-columns: 1fr;
+    }
+
+    .links {
+      grid-column: auto;
+      grid-row: auto;
+      justify-self: center;
     }
   }
 
@@ -222,50 +268,72 @@
       d="M200,64V168a8,8,0,0,1-16,0V83.31L69.66,197.66a8,8,0,0,1-11.32-11.32L172.69,72H88a8,8,0,0,1,0-16H192A8,8,0,0,1,200,64Z"
     ></path>
   </symbol>
+  <symbol id="signal" viewBox="0 0 24 24">
+    <path
+      d="M12 0q-.934 0-1.83.139l.17 1.111a11 11 0 0 1 3.32 0l.172-1.111A12 12 0 0 0 12 0M9.152.34A12 12 0 0 0 5.77 1.742l.584.961a10.8 10.8 0 0 1 3.066-1.27zm5.696 0-.268 1.094a10.8 10.8 0 0 1 3.066 1.27l.584-.962A12 12 0 0 0 14.848.34M12 2.25a9.75 9.75 0 0 0-8.539 14.459c.074.134.1.292.064.441l-1.013 4.338 4.338-1.013a.62.62 0 0 1 .441.064A9.7 9.7 0 0 0 12 21.75c5.385 0 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25m-7.092.068a12 12 0 0 0-2.59 2.59l.909.664a11 11 0 0 1 2.345-2.345zm14.184 0-.664.909a11 11 0 0 1 2.345 2.345l.909-.664a12 12 0 0 0-2.59-2.59M1.742 5.77A12 12 0 0 0 .34 9.152l1.094.268a10.8 10.8 0 0 1 1.269-3.066zm20.516 0-.961.584a10.8 10.8 0 0 1 1.27 3.066l1.093-.268a12 12 0 0 0-1.402-3.383M.138 10.168A12 12 0 0 0 0 12q0 .934.139 1.83l1.111-.17A11 11 0 0 1 1.125 12q0-.848.125-1.66zm23.723.002-1.111.17q.125.812.125 1.66c0 .848-.042 1.12-.125 1.66l1.111.172a12.1 12.1 0 0 0 0-3.662M1.434 14.58l-1.094.268a12 12 0 0 0 .96 2.591l-.265 1.14 1.096.255.36-1.539-.188-.365a10.8 10.8 0 0 1-.87-2.35m21.133 0a10.8 10.8 0 0 1-1.27 3.067l.962.584a12 12 0 0 0 1.402-3.383zm-1.793 3.848a11 11 0 0 1-2.345 2.345l.664.909a12 12 0 0 0 2.59-2.59zm-19.959 1.1L.357 21.48a1.8 1.8 0 0 0 2.162 2.161l1.954-.455-.256-1.095-1.953.455a.675.675 0 0 1-.81-.81l.454-1.954zm16.832 1.769a10.8 10.8 0 0 1-3.066 1.27l.268 1.093a12 12 0 0 0 3.382-1.402zm-10.94.213-1.54.36.256 1.095 1.139-.266c.814.415 1.683.74 2.591.961l.268-1.094a10.8 10.8 0 0 1-2.35-.869zm3.634 1.24-.172 1.111a12.1 12.1 0 0 0 3.662 0l-.17-1.111q-.812.125-1.66.125a11 11 0 0 1-1.66-.125"
+    ></path>
+  </symbol>
+  <symbol id="github" viewBox="0 0 24 24">
+    <path
+      d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
+    ></path>
+  </symbol>
+  <symbol id="x" viewBox="0 0 24 24">
+    <path
+      d="M14.234 10.162 22.977 0h-2.072l-7.591 8.824L7.251 0H.258l9.168 13.343L.258 24H2.33l8.016-9.318L16.749 24h6.993zm-2.837 3.299-.929-1.329L3.076 1.56h3.182l5.965 8.532.929 1.329 7.754 11.09h-3.182z"
+    ></path>
+  </symbol>
+  <!-- Phosphor draws inside a margin, so the view box crops it to match the
+       edge-to-edge Simple Icons marks. -->
+  <symbol id="linkedin" viewBox="24 24 208 208">
+    <path
+      d="M216,24H40A16,16,0,0,0,24,40V216a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V40A16,16,0,0,0,216,24ZM96,176a8,8,0,0,1-16,0V112a8,8,0,0,1,16,0ZM88,96a12,12,0,1,1,12-12A12,12,0,0,1,88,96Zm96,80a8,8,0,0,1-16,0V140a20,20,0,0,0-40,0v36a8,8,0,0,1-16,0V112a8,8,0,0,1,15.79-1.78A36,36,0,0,1,184,140Z"
+    ></path>
+  </symbol>
 </svg>
 
 <main>
-  <h1>
-    <span>Hey, I&rsquo;m Cade. I design and<br />build digital products.</span>
-  </h1>
+  <h1>Hey, I&rsquo;m Cade. I design &amp;<br />build digital products.</h1>
 
   <nav class="projects">
     <a href="https://llog.app">
-      <span><strong>llog.app</strong></span>
+      <span>llog.app</span>
       <svg><use href="#arrow" /></svg>
     </a>
     <a href="https://geoparse.ai">
-      <span><strong>geoparse.ai</strong></span>
+      <span>geoparse.ai</span>
       <svg><use href="#arrow" /></svg>
     </a>
     <a href="https://stitchstudio.ai">
-      <span><strong>stitchstudio.ai</strong></span>
+      <span>stitchstudio.ai</span>
       <svg><use href="#arrow" /></svg>
     </a>
     <a href="https://541.ski">
-      <span><strong>541.ski</strong></span>
+      <span>541.ski</span>
       <svg><use href="#arrow" /></svg>
     </a>
   </nav>
 
   <nav class="links">
     <a
+      aria-label="Signal"
       href="https://signal.me/#eu/k0wbY0eeLzzn1GLkJJ3SXYeL23J7XTuOs5zm0BEU-kOJgO1Sl3pDOLc5pKuFb86I"
+      title="Signal"
     >
-      <span>Signal</span>
-      <svg><use href="#arrow" /></svg>
+      <svg><use href="#signal" /></svg>
     </a>
-    <a href="https://github.com/xvvvyz.gpg">
-      <span>PGP key</span>
-      <svg><use href="#arrow" /></svg>
+    <a aria-label="GitHub" href="https://github.com/xvvvyz" title="GitHub">
+      <svg><use href="#github" /></svg>
     </a>
-    <a href="https://github.com/xvvvyz">
-      <span>GitHub</span>
-      <svg><use href="#arrow" /></svg>
+    <a aria-label="X" href="https://x.com/xvvvyz" title="X">
+      <svg><use href="#x" /></svg>
     </a>
-    <a href="https://linkedin.com/in/xvvvyz/">
-      <span>LinkedIn</span>
-      <svg><use href="#arrow" /></svg>
+    <a
+      aria-label="LinkedIn"
+      href="https://linkedin.com/in/xvvvyz/"
+      title="LinkedIn"
+    >
+      <svg><use href="#linkedin" /></svg>
     </a>
   </nav>
 </main>
