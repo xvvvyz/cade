@@ -1,0 +1,4 @@
+[install]
+# skip versions published in the last 7 days: hijacked releases are usually
+# caught and pulled from npm within days
+minimumReleaseAge = 604800
